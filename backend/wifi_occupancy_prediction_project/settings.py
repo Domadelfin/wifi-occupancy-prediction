@@ -182,12 +182,12 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    FRONTEND_URL,
+    "https://wifi-occupancy-prediction-five.vercel.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    FRONTEND_URL,
+    "https://wifi-occupancy-prediction-five.vercel.app",
     "https://wifi-occupancy-prediction-production.up.railway.app",
 ]
 
@@ -269,3 +269,5 @@ else:
     CSRF_COOKIE_SAMESITE = "None"
     CSRF_COOKIE_SECURE = True
 
+SESSION_COOKIE_DOMAIN = None
+CSRF_COOKIE_DOMAIN = None

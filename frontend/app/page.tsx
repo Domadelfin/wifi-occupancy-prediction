@@ -21,6 +21,7 @@ export default function Home() {
   fetch(whoami, { credentials: "include" })
     .then(r => (r.ok ? r.json() : { authenticated: false }))
     .then(d => {
+      console.log("WHOAMI RESPONSE:", d);
       // Always show the loading screen for at least 2–4 seconds
       const MIN_LOADING_TIME = 4000; // ms
 

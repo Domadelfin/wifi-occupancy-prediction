@@ -14,6 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 import os
 import dj_database_url
+from rest_framework.permissions import AllowAny
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,6 +40,7 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "wifi-occupancy-prediction-production
 
 # Application definition
 
+#Connects created apps to the backend
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django_filters',
 
 
     'rest_framework',
@@ -56,6 +59,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'users',
+    'api',
+    'occupancy',
 ]
 
 MIDDLEWARE = [
@@ -95,15 +100,33 @@ WSGI_APPLICATION = 'wifi_occupancy_prediction_project.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASE_URL = os.getenv("DATABASE_URL", "")
+
+DB_SSL_REQUIRED = os.getenv(
+    "DB_SSL_REQUIRED",
+    "false" if DEBUG else "true"
+).lower() == "true"
+
 if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.config(
-            default=DATABASE_URL, 
-            conn_max_age=600,
-            ssl_require=True
-            )}
+            default=DATABASE_URL,
+            conn_max_age=0 if os.getenv("DEBUG","false").lower()=="true" else 600,
+            ssl_require=DB_SSL_REQUIRED,
+        )
+    }
 else:
-    DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "HOST": os.getenv("DB_HOST", "localhost"),
+            "PORT": int(os.getenv("DB_PORT", "5432")),
+            "NAME": os.getenv("DB_NAME", "wifi"),
+            "USER": os.getenv("DB_USER", "wifi"),
+            "PASSWORD": os.getenv("DB_PASSWORD", "wifi"),
+            "CONN_MAX_AGE": 0 if os.getenv("DEBUG","false").lower()=="true" else 600,
+            "OPTIONS": {} if not DB_SSL_REQUIRED else {"sslmode": "require"},
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -129,7 +152,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Manila'
 
 USE_I18N = True
 
@@ -173,9 +196,14 @@ CORS_ALLOW_HEADERS = [
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
+    "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
+    ],
+
+    "DEFAULT_PERMISSION_CLASSES":[
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+        # "rest_framework.permissions.AllowAny",
+    ]
 }
 
 AUTHENTICATION_BACKENDS = [

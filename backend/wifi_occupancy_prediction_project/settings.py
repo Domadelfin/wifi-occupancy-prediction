@@ -183,6 +183,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://wifi-occupancy-prediction-five.vercel.app",
+    "https://wifi-occupancy-prediction-production.up.railway.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
